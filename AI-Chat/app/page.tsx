@@ -52,7 +52,7 @@ export default function Home() {
         </div>
 
         <div className="home-footer">
-          <p>Powered by Ollamap</p>
+          <p>Powered by Ollama</p>
         </div>
       </div>
     </div>
