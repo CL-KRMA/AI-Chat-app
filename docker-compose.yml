@@ -1,0 +1,49 @@
+services:
+  # Service Ollama avec les modèles Llama et Llava
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    restart: unless-stopped
+    networks:
+      - ai_network
+    entrypoint: >
+      sh -c "
+      ollama serve &
+      sleep 5 &&
+      ollama pull llama3:8b &&
+      ollama pull llava:7b &&
+      tail -f /dev/null
+      "
+
+  # Service Next.js Frontend
+  frontend:
+    build:
+      context: ./testollama
+      dockerfile: Dockerfile
+    container_name: ai_chat_frontend
+    ports:
+      - "3000:3000"
+    environment:
+      # Variables pour faire appel à Ollama
+      OLLAMA_API_URL: "http://ollama:11434"
+      NODE_ENV: production
+    depends_on:
+      - ollama
+    networks:
+      - ai_network
+    restart: unless-stopped
+    # Pour développement avec hot-reload (optionnel)
+    # volumes:
+    #   - ./testollama:/app
+    #   - /app/node_modules
+
+volumes:
+  ollama_data:
+
+networks:
+  ai_network:
+    driver: bridge
