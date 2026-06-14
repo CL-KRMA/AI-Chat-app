@@ -16,10 +16,10 @@ jobs:
           node-version: '20'
       - name: Install dependencies
         run: npm ci
-        working-directory: ./AI-Chat
+        working-directory: ./ai-chat
       - name: Run ESLint
         run: npm run lint
-        working-directory: ./AI-Chat
+        working-directory: ./ai-chat
 
   # 2. Tests unitaires hors conteneur
   tests:
@@ -32,10 +32,10 @@ jobs:
           node-version: '20'
       - name: Install dependencies
         run: npm ci
-        working-directory: ./AI-Chat
+        working-directory: ./ai-chat
       - name: Run Jest tests
         run: npm test
-        working-directory: ./AI-Chat
+        working-directory: ./ai-chat
 
   # 3. Build & Push image (seulement si lint + tests passent)
   build:        
@@ -49,11 +49,11 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
-          context: ./fullstack
+          context: ./AI-Chat
           push: true
           tags: |
-            ghcr.io/${{ secrets.GHCR_USERNAME }}/AI-Chat-app:${{ github.sha }}
-            ghcr.io/${{ secrets.GHCR_USERNAME }}/AI-Chat-app:latest
+            ghcr.io/${{ secrets.GHCR_USERNAME }}/ai-chat-app:${{ github.sha }}
+            ghcr.io/${{ secrets.GHCR_USERNAME }}/ai-chat-app:latest
 
   # 4. Security Scan
   security:
@@ -63,7 +63,7 @@ jobs:
       - name: Scan Docker image with Trivy
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: ghcr.io/${{ secrets.GHCR_USERNAME }}/AI-Chat-app:${{ github.sha }}
+          image-ref: ghcr.io/${{ secrets.GHCR_USERNAME }}/ai-chat-app:${{ github.sha }}
           format: 'table'
           exit-code: '0'
           ignore-unfixed: true
@@ -76,18 +76,18 @@ jobs:
       - name: Checkout infra repo
         uses: actions/checkout@v3
         with:
-          repository: CL-KRMA/fullstackprog-gitops
+          repository: CL-KRMA/AI-Chat-gitops
           ref: main
           token: ${{ secrets.INFRA_REPO_TOKEN }}
 
       - name: Mettre à jour le manifest avec le nouveau tag
         run: |
-          sed -i "s|ghcr.io.*/AI-Chat-app:.*|ghcr.io/${{ secrets.GHCR_USERNAME }}/AI-Chat-app:${{ github.sha }}|g" frontend.yaml
+          sed -i "s|ghcr.io.*/ai-chat-app:.*|ghcr.io/${{ secrets.GHCR_USERNAME }}/ai-chat-app:${{ github.sha }}|g" frontend.yaml
 
       - name: Commit et push
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
           git add frontend.yaml
-          git commit -m "Update AI-Chat-app image to ${{ github.sha }}" || echo "No changes to commit"
+          git commit -m "Update ai-chat-app image to ${{ github.sha }}" || echo "No changes to commit"
           git push origin main
