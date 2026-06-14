@@ -49,7 +49,7 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
-          context: ./AI-Chat
+          context: ./ai-chat
           push: true
           tags: |
             ghcr.io/${{ secrets.GHCR_USERNAME }}/ai-chat-app:${{ github.sha }}
