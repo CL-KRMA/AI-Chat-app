@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image'; // ajouté
 
 interface Message {
   role: 'user' | 'assistant';
@@ -93,7 +94,7 @@ export default function LlavaChat() {
         <div className="chat-header chat-header-llava">
           <div className="chat-header-left">
             <h1>🎨 Llava Chat</h1>
-            <p>Analysez des images avec l'IA de vision</p>
+            <p>Analysez des images avec l&apos;IA de vision</p> {/* corrigé */}
           </div>
           <Link href="/" style={{ textDecoration: 'none' }}>
             <button className="back-button">← Retour</button>
@@ -119,9 +120,11 @@ export default function LlavaChat() {
               >
                 <div className={`message-bubble ${message.role === 'user' ? 'message-user' : 'message-assistant-llava'}`}>
                   {message.image && (
-                    <img
+                    <Image
                       src={message.image}
                       alt="uploaded"
+                      width={300}
+                      height={200}
                       className="message-image"
                     />
                   )}
@@ -146,9 +149,11 @@ export default function LlavaChat() {
         {imagePreview && (
           <div className="image-preview">
             <div className="preview-box">
-              <img
+              <Image
                 src={imagePreview}
                 alt="preview"
+                width={300}
+                height={200}
                 className="preview-image"
               />
               <button

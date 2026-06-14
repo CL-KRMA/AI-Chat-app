@@ -40,7 +40,7 @@ export default function Home() {
               </p>
               <div className="card-info">
                 <p>
-                  🖼️ Analyse d'images
+                  🖼️ Analyse d&apos;images
                   <br />
                   📸 Vision par IA
                   <br />

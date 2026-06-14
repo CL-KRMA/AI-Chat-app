@@ -11,7 +11,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    let fullPrompt = prompt;
+    const fullPrompt = prompt; // corrigé : const au lieu de let
 
     // Call Ollama with Llava
     const ollamaResponse = await fetch('http://ollama:11434/api/generate', {
