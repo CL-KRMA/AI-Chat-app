@@ -2,21 +2,25 @@
 
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
-import Image from 'next/image'; // ajouté
+import Image from 'next/image';
 
 interface Message {
   role: 'user' | 'assistant';
   content: string;
   image?: string;
+  audio?: string;
 }
 
 export default function LlavaChat() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [imageData, setImageData] = useState<string | null>(null);
+  const [audioData, setAudioData] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [audioPreview, setAudioPreview] = useState<string | null>(null);
+  const imageInputRef = useRef<HTMLInputElement>(null);
+  const audioInputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -40,14 +44,28 @@ export default function LlavaChat() {
     }
   };
 
+  const handleAudioUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64 = reader.result as string;
+        setAudioData(base64.split(',')[1]);
+        setAudioPreview(base64);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!input.trim() && !imageData) return;
+    if (!input.trim() && !imageData && !audioData) return;
 
     const userMessage: Message = {
       role: 'user',
       content: input,
       image: imagePreview || undefined,
+      audio: audioPreview || undefined,
     };
 
     setMessages((prev) => [...prev, userMessage]);
@@ -60,6 +78,7 @@ export default function LlavaChat() {
         body: JSON.stringify({
           prompt: input,
           image: imageData,
+          audio: audioData,
         }),
       });
 
@@ -85,6 +104,8 @@ export default function LlavaChat() {
       setInput('');
       setImageData(null);
       setImagePreview(null);
+      setAudioData(null);
+      setAudioPreview(null);
     }
   };
 
@@ -94,7 +115,7 @@ export default function LlavaChat() {
         <div className="chat-header chat-header-llava">
           <div className="chat-header-left">
             <h1>🎨 Llava Chat</h1>
-            <p>Analysez des images avec l&apos;IA de vision</p> {/* corrigé */}
+            <p>Analysez images et audio avec l&apos;IA de vision</p>
           </div>
           <Link href="/" style={{ textDecoration: 'none' }}>
             <button className="back-button">← Retour</button>
@@ -107,7 +128,7 @@ export default function LlavaChat() {
               <div className="empty-state-content">
                 <div className="empty-emoji">🎯</div>
                 <h2>Bienvenue sur Llava</h2>
-                <p>Uploadez une image et posez une question pour commencer à analyser avec Llava</p>
+                <p>Uploadez une image et/ou un audio pour commencer à analyser avec Llava</p>
               </div>
             </div>
           )}
@@ -127,6 +148,12 @@ export default function LlavaChat() {
                       height={200}
                       className="message-image"
                     />
+                  )}
+                  {message.audio && (
+                    <audio controls className="message-audio">
+                      <source src={message.audio} type="audio/mpeg" />
+                      Votre navigateur ne supporte pas l&apos;audio.
+                    </audio>
                   )}
                   <p>{message.content}</p>
                 </div>
@@ -170,33 +197,68 @@ export default function LlavaChat() {
           </div>
         )}
 
+        {audioPreview && (
+          <div className="audio-preview">
+            <div className="preview-box">
+              <audio controls className="preview-audio">
+                <source src={audioPreview} type="audio/mpeg" />
+                Votre navigateur ne supporte pas l&apos;audio.
+              </audio>
+              <button
+                type="button"
+                onClick={() => {
+                  setAudioData(null);
+                  setAudioPreview(null);
+                }}
+                className="remove-button"
+              >
+                Supprimer audio
+              </button>
+            </div>
+          </div>
+        )}
+
         <div className="input-area">
           <form onSubmit={handleSubmit} className="input-form">
             <button
               type="button"
-              onClick={() => fileInputRef.current?.click()}
+              onClick={() => imageInputRef.current?.click()}
               className="image-button"
             >
               📷 Image
             </button>
             <input
-              ref={fileInputRef}
+              ref={imageInputRef}
               type="file"
               accept="image/*"
               onChange={handleImageUpload}
+              className="hidden-file-input"
+            />
+            <button
+              type="button"
+              onClick={() => audioInputRef.current?.click()}
+              className="audio-button"
+            >
+              🎤 Audio
+            </button>
+            <input
+              ref={audioInputRef}
+              type="file"
+              accept="audio/*"
+              onChange={handleAudioUpload}
               className="hidden-file-input"
             />
             <input
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Posez votre question sur l'image..."
+              placeholder="Posez votre question..."
               className="text-input"
               disabled={loading}
             />
             <button
               type="submit"
-              disabled={loading || (!input.trim() && !imageData)}
+              disabled={loading || (!input.trim() && !imageData && !audioData)}
               className="send-button"
             >
               {loading ? '⏳' : '📤'} Envoyer

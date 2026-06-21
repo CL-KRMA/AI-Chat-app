@@ -2,28 +2,30 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
   try {
-    const { prompt, image, audio } = await request.json();
+    const { prompt, image, audio, video } = await request.json();
 
-    if (!prompt && !image && !audio) {
+    if (!prompt && !image && !audio && !video) {
       return NextResponse.json(
-        { error: 'Prompt, image or audio is required' },
+        { error: 'Prompt, image, audio or video is required' },
         { status: 400 }
       );
     }
 
-    const fullPrompt = prompt; // corrigé : const au lieu de let
+    // Use a default prompt if not provided
+    const finalPrompt = prompt || 'Analyze this content';
 
-    // Call Ollama with Llava
+    // Call Ollama with Gemma
     const ollamaResponse = await fetch('http://ollama:11434/api/generate', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'llava:7b',
-        prompt: fullPrompt,
+        model: 'gemma4:12b',
+        prompt: finalPrompt,
         images: image ? [image] : undefined,
         audio: audio ? audio : undefined,
+        video: video ? video : undefined,
         stream: false,
       }),
     });
@@ -53,6 +55,3 @@ export async function POST(request: NextRequest) {
     );
   }
 }
-
-// Alias for backward compatibility - redirect to /llava
-export { POST as POST_LLAVA };

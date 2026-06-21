@@ -11,7 +11,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const fullPrompt = prompt; // corrigé : const au lieu de let
+    // Use a default prompt if not provided
+    const finalPrompt = prompt || 'Analyze this content';
 
     // Call Ollama with Llava
     const ollamaResponse = await fetch('http://ollama:11434/api/generate', {
@@ -21,7 +22,7 @@ export async function POST(request: NextRequest) {
       },
       body: JSON.stringify({
         model: 'llava:7b',
-        prompt: fullPrompt,
+        prompt: finalPrompt,
         images: image ? [image] : undefined,
         audio: audio ? audio : undefined,
         stream: false,
@@ -53,6 +54,3 @@ export async function POST(request: NextRequest) {
     );
   }
 }
-
-// Alias for backward compatibility - redirect to /llava
-export { POST as POST_LLAVA };

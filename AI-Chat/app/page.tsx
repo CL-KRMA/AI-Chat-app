@@ -49,6 +49,25 @@ export default function Home() {
               </div>
             </div>
           </Link>
+
+          <Link href="/gemma" style={{ textDecoration: 'none', color: 'inherit' }}>
+            <div className="card card-gemma">
+              <div className="card-emoji">✨</div>
+              <h2 className="card-title">Gemma</h2>
+              <p className="card-description">
+                Modèle avancé pour conversations intelligentes
+              </p>
+              <div className="card-info">
+                <p>
+                  💬 Réponses détaillées
+                  <br />
+                  🚀 Modèle puissant
+                  <br />
+                  🧠 Gemma 4 12B
+                </p>
+              </div>
+            </div>
+          </Link>
         </div>
 
         <div className="home-footer">
