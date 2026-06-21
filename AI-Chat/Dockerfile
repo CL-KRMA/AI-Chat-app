@@ -1,35 +1,41 @@
-# Étape 1 : Build
-FROM node:20-alpine AS build
+# syntax=docker/dockerfile:1
+
+# ---------- Étape 1 : Dépendances ----------
+FROM node:20-alpine AS deps
 WORKDIR /app
-
-# Installer compatibilité glibc pour SWC
 RUN apk add --no-cache libc6-compat
-
-# Copier uniquement les fichiers nécessaires pour installer les dépendances
 COPY package*.json ./
 RUN npm ci
 
-# Copier le reste du code
+# ---------- Étape 2 : Build ----------
+FROM node:20-alpine AS build
+WORKDIR /app
+RUN apk add --no-cache libc6-compat
+COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-
-# Construire l'application Next.js
+ENV NEXT_TELEMETRY_DISABLED=1
 RUN npm run build
 
-# Étape 2 : Runtime
+# ---------- Étape 3 : Runtime ----------
 FROM node:20-alpine AS runtime
 WORKDIR /app
 
-# Installer compatibilité glibc pour SWC
-RUN apk add --no-cache libc6-compat
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV PORT=3000
 
-# Copier uniquement le build et les fichiers nécessaires
-COPY --from=build /app/package*.json ./
-COPY --from=build /app/.next ./.next
-#COPY --from=build /app/public ./public
-# Copier les fichiers de configuration nécessaires
+# Utilisateur non-root
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 
-# Installer uniquement les dépendances de production
-RUN npm ci --omit=dev && npm cache clean --force
+# Fichiers nécessaires uniquement (mode standalone)
+COPY --from=build /app/public ./public
+COPY --from=build --chown=appuser:appgroup /app/.next/standalone ./
+COPY --from=build --chown=appuser:appgroup /app/.next/static ./.next/static
 
+USER appuser
 EXPOSE 3000
-CMD ["npm", "run", "start"]
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+  CMD wget --no-verbose --tries=1 --spider http://localhost:3000/ || exit 1
+
+CMD ["node", "server.js"]
