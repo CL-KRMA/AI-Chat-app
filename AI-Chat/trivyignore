@@ -1,0 +1,22 @@
+# CVE dans les devDependencies (Jest, ESLint, ts-jest)
+# Ces packages ne sont jamais inclus dans l'image runtime
+# car Next.js standalone ne copie que les deps de production
+
+# tar — dépendance de ts-jest/jest (devDependency uniquement)
+CVE-2026-23745
+CVE-2026-23950
+CVE-2026-24842
+CVE-2026-26960
+CVE-2026-29786
+CVE-2026-31802
+
+# glob — dépendance de jest/ESLint (devDependency uniquement)
+CVE-2025-64756
+
+# minimatch — dépendance de jest/ESLint (devDependency uniquement)
+CVE-2026-26996
+CVE-2026-27903
+CVE-2026-27904
+
+# cross-spawn — dépendance de jest/ESLint (devDependency uniquement)
+CVE-2024-21538

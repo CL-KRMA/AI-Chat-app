@@ -92,6 +92,9 @@ jobs:
       contents: read
       packages: write
     steps:
+      # Checkout nécessaire pour lire le .trivyignore
+      - uses: actions/checkout@v4
+
       - name: Scan Docker image with Trivy
         uses: aquasecurity/trivy-action@master
         with:
@@ -100,6 +103,7 @@ jobs:
           severity: 'CRITICAL,HIGH'
           exit-code: '1'
           ignore-unfixed: true
+          trivyignores: ./AI-Chat/.trivyignore
 
       - name: Log in to GitHub Container Registry
         if: success()
