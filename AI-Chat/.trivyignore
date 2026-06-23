@@ -20,3 +20,8 @@ CVE-2026-27904
 
 # cross-spawn — dépendance de jest/ESLint (devDependency uniquement)
 CVE-2024-21538
+
+# OpenSSL — CVE dans l'image de base node:20-alpine
+# Correction (3.5.7-r0) pas encore disponible dans le registre Alpine
+# À retirer dès que node:20-alpine embarque la version corrigée
+CVE-2026-45447
