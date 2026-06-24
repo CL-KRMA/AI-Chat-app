@@ -302,7 +302,7 @@ AI-Chat-app/
 | Repo | Description |
 |---|---|
 | [AI-Chat-gitops](https://github.com/CL-KRMA/AI-Chat-gitops) | Manifests Kubernetes (GitOps) |
-| [aws-terraform-config](https://github.com/CL-KRMA/aws-terraform-config) | Infrastructure AWS (K3s cluster) |
+| [AI-Chat-infra](https://github.com/CL-KRMA/AI-Chat-infra) | Infrastructure AWS (K3s cluster) |
 
 ## 📝 Licence
 
